@@ -26,16 +26,13 @@ pathEstimates$processes_titles[which(pathEstimates$lhs == "energy")] <- "Positiv
 print(pathEstimates$processes_titles)
 
 ### Creating narcissism scale ###
-# Creating new data frame with only the traits from the full narcissism index file #
-traitsIndex <- narcissismIndex[ , c(5, 9:39)]
-
 # Creating new column for average narcissism score #
 narcissismIndex$narcissismScale <- matrix(NA,length(narcissismIndex$subj_id),1)
 
 # Calculating narcissism score #
 narcissismIndex$narcissismScale <- (rowSums(traitsIndex[, 2:32], na.rm = T)/31)
 
-### Some statistical shit ###
+### Some statistical stuff ###
 # Hostile to Negative Affect #
 
 
