@@ -54,4 +54,10 @@ group2_data <- filter(pathEstimates, subgroup_titles =="Group 2")
   geom_bar(stat = "count", position = "dodge") +
   labs(title = "Group 2 Processes Comparison", x = "Titles", y = "Count",)+scale_y_continuous(limits = c(0, 120)) 
 
+#Combine Graphs
+library(gridExtra)
+
+combined_plots <- grid.arrange(group1_plot, group2_plot, ncol = 2)
+
+
 
