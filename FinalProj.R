@@ -35,5 +35,23 @@ narcissismIndex$narcissismScale <- (rowSums(traitsIndex[, 2:32], na.rm = T)/31)
 ### Some statistical stuff ###
 # Hostile to Negative Affect #
 
+##### Bar graph for Path Estimates in subgroups####
+library(ggplot2)
+library(dplyr)
+
+#Group 1
+group1_data <- filter(pathEstimates, subgroup_titles == "Group 1")
+
+group1_plot <- ggplot(group1_data, aes(x = processes_titles)) +
+  geom_bar(stat = "count", position = "dodge") +
+  labs(title = "Group 1 Processes Comparison", x = "Titles", y = "Count")+
+  scale_y_continuous(limits = c(0, 120)) 
+
+#Group 2 
+group2_data <- filter(pathEstimates, subgroup_titles =="Group 2")
+
+ group2_plot <- ggplot(group2_data, aes(x = processes_titles)) +
+  geom_bar(stat = "count", position = "dodge") +
+  labs(title = "Group 2 Processes Comparison", x = "Titles", y = "Count",)+scale_y_continuous(limits = c(0, 120)) 
 
 
