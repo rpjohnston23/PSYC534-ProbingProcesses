@@ -58,7 +58,9 @@ print(id_changes)
 
 ####Combining Narcissism Scores by Subject ID ####
 
-narcissism_average_scores <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
+narcissism_averages <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
+print(narcissism_averages)
+
 
 ##### Bar graph for Path Estimates in subgroups####
 library(ggplot2)
@@ -67,5 +69,10 @@ ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
   geom_bar(stat = "count", position = "dodge") +
   labs(title = "Group Processes Comparisons", x = "Titles", y = "Count", fill= "Groups")+
   scale_y_continuous(limits = c(0, 120)) 
+
+####Beta Average For Group 1 and Group 2 #####
+
+beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
+print(beta_averages)
 
 
