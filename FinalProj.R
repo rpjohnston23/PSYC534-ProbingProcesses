@@ -56,6 +56,10 @@ print(id_changes)
 ### Some statistical stuff ###
 # Hostile to Negative Affect #
 
+####Combining Narcissism Scores by Subject ID ####
+
+narcissism_average_scores <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
+
 ##### Bar graph for Path Estimates in subgroups####
 library(ggplot2)
 
