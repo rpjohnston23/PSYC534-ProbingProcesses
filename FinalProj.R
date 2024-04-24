@@ -75,4 +75,22 @@ ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
 beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
 print(beta_averages)
 
+#### Merging Data sets #####
+library(dplyr)
+
+pathEstimates$file <- as.numeric(sub("person", "", pathEstimates$file)) #removing "person" from number ids
+pathEstimates$subj_id <- pathEstimates$file #creating column with same name as narrissism_averages
+
+narc_path_merge <- merge(pathEstimates, narcissism_averages, by.y= "subj_id", all=TRUE)
+
+#### Linear Regression ####
+model <- lm(narcissismScale ~ beta, data = narc_path_merge) 
+
+summary(model)
+
+#### Linear Regression Graph ####
+plot(narc_path_merge$narcissismScale, narc_path_merge$beta, 
+     xlab = "Narcissim", ylab = "Beta", main = "Linear Model",xlim= c(-1,3), ylim = c(-1,2.5))
+abline(model, col = "red",lwd=2)
+
 
