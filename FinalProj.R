@@ -75,6 +75,14 @@ ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
 beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
 print(beta_averages)
 
+#T-test to test for significant differences
+
+t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles== "Group 1")], 
+       pathEstimates$beat[which(pathEstimates$subgroup_titles == "Group 2")], 
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
 #### Merging Data sets #####
 library(dplyr)
 
