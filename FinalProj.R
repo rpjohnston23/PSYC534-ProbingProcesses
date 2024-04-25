@@ -32,30 +32,6 @@ narcissismIndex$narcissismScale <- matrix(NA,length(narcissismIndex$subj_id),1)
 # Calculating narcissism score #
 narcissismIndex$narcissismScale <- (rowSums(traitsIndex[, 2:32], na.rm = T)/31)
 
-### Function to recognize when subject ID numbers change ###
-recognize_id_changes <- function(subj_id) {
-  # Initialize an empty vector to store the indices of ID changes
-  id_change_indices <- c(1)  # Start with the first index
-  
-  # Loop through the ID column
-  for (i in 2:length(narcissismIndex$subj_id)) {
-    # Check if the current ID is different from the previous one
-    if (narcissismIndex$subj_id[i] != narcissismIndex$subj_id[i - 1]) {
-      # If it's different, record the index
-      id_change_indices <- c(id_change_indices, i)
-    }
-  }
-  
-  # Return the indices where ID changes occur
-  return(id_change_indices)
-}
-
-id_changes <- recognize_id_changes(narcissismIndex)
-print(id_changes)
-
-### Some statistical stuff ###
-# Hostile to Negative Affect #
-
 ####Combining Narcissism Scores by Subject ID ####
 
 narcissism_averages <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
