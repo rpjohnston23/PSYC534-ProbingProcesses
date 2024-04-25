@@ -91,14 +91,19 @@ pathEstimates$subj_id <- pathEstimates$file #creating column with same name as n
 
 narc_path_merge <- merge(pathEstimates, narcissism_averages, by.y= "subj_id", all=TRUE)
 
-#### Linear Regression ####
-model <- lm(narcissismScale ~ beta, data = narc_path_merge) 
+#### Linear Regression Summary and Graph####
+full_linear_regression <- function(x,y,z,a){
+  model <- lm(x~y)
+  graph <- plot (x,y, xlab = z, ylab = a, main = "Linear Model",
+        xlim= c(-1,3), ylim = c(-1,2.5))
+        abline(model, col = "red",lwd=2)
+  details <- summary(model)
+  
+  return(list(graph,details))
+}
 
-summary(model)
+full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissim", "Beta")
 
-#### Linear Regression Graph ####
-plot(narc_path_merge$narcissismScale, narc_path_merge$beta, 
-     xlab = "Narcissim", ylab = "Beta", main = "Linear Model",xlim= c(-1,3), ylim = c(-1,2.5))
-abline(model, col = "red",lwd=2)
+
 
 
