@@ -30,7 +30,7 @@ print(pathEstimates$processes_titles)
 narcissismIndex$narcissismScale <- matrix(NA,length(narcissismIndex$subj_id),1)
 
 # Calculating narcissism score #
-narcissismIndex$narcissismScale <- (rowSums(traitsIndex[, 2:32], na.rm = T)/31)
+narcissismIndex$narcissismScale <- (rowSums(narcissismIndex[, 9:39], na.rm = T)/31)
 
 ####Combining Narcissism Scores by Subject ID ####
 
@@ -44,7 +44,7 @@ library(ggplot2)
 ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
   geom_bar(stat = "count", position = "dodge") +
   labs(title = "Group Processes Comparisons", x = "Titles", y = "Count", fill= "Groups")+
-  scale_y_continuous(limits = c(0, 120)) 
+  scale_y_continuous(limits = c(0, 120))
 
 ####Beta Average For Group 1 and Group 2 #####
 
@@ -53,8 +53,8 @@ print(beta_averages)
 
 #T-test to test for significant differences
 
-t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles== "Group 1")], 
-       pathEstimates$beat[which(pathEstimates$subgroup_titles == "Group 2")], 
+t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 1")], 
+       pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 2")], 
        alternative = c("two.sided", "less", "greater"),
        mu = 0, paired = FALSE, var.equal = FALSE,
        conf.level = 0.95)
@@ -78,7 +78,7 @@ full_linear_regression <- function(x,y,z,a){
   return(list(graph,details))
 }
 
-full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissim", "Beta")
+full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissism", "Beta")
 
 
 

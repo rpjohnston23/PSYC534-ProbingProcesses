@@ -1,0 +1,81 @@
+---
+title: "Final Project"
+author: "Hoanvu Nguyen"
+date: "2024-04-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Sourcing
+
+```{r, include=FALSE}
+source("FinalProj.R")
+```
+
+## Premise
+
+In this report, we conducted an analysis using data from a study assessing individuals' processes. Individuals (N=215) were asked to provide self-report scores for 31 scales representing emotional states (e.g. enthusiastic, angry, sad) at certain intervals of time (at least 60 intervals for each person). Certain patterns of relation were found in the data that indicated the existence of paths between processes that were present in every single participant.
+
+For the study, participants were separated into two cohorts. Our primary intention in this report was to assess the strength of the group-level path estimates for each subgroup for three paths. The three group-level paths analyzed in this report were that of Negative Affect towards Nervousness, Hostility towards Negative Affect, and Positive Affect towards Energy. We want to assess the strength (indicated by beta scores) displayed by each subgroup for these paths.
+
+## Bar Graph for Path Estimates in Subgroups
+
+In order to visualize and compare the reported instances of the relevant relationship displayed by each subgroup, we created a bar graph. Due to the consistency of the bar graph, we can identify that Group 1 has less participants than Group 2 and that every participant expressed an analyzable path for these three relationships.
+```{r}
+library(ggplot2)
+
+ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
+  geom_bar(stat = "count", position = "dodge") +
+  labs(title = "Group Processes Comparisons", x = "Titles", y = "Count", fill= "Groups")+
+  scale_y_continuous(limits = c(0, 120))
+```
+
+## Construction of Narcissism Scale
+
+In order to create the Narcissism scale, we assessed Wright's data for the responses to the 31 emotional scales. We decided to sum up the scores in each emotional scale for every time point and average the results . Since each individual had multiple responses corresponding to the differing time points, we then aggregated the narcissism scores with respect to subject ID in order to group all time points to their corresponding individual. With this method, we were able to determine a each participant's narcissism score for the entirety of the study.
+
+```{r}
+# Creating new column for average narcissism score #
+narcissismIndex$narcissismScale <- matrix(NA,length(narcissismIndex$subj_id),1)
+
+# Calculating narcissism score #
+narcissismIndex$narcissismScale <- (rowSums(narcissismIndex[, 9:39], na.rm = T)/31)
+
+####Combining Narcissism Scores by Subject ID ####
+
+narcissism_averages <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
+```
+
+## Finding Beta Averages for Each Subgroup
+
+```{r}
+beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
+print(beta_averages)
+```
+
+## T-Test Comparing Beta Averages in Subgroups for Each Path
+
+```{r}
+beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
+```
+
+## Constructing Linear Regression Model for Average Beta Scores and Narcissism Scale
+
+We also wanted to find out whether or not the participants' beta scores would display correlations with their narcissism scores. We conducted linear regression analyses to identify potentially significant relationships between the two calculated variable groups.
+
+```{r}
+full_linear_regression <- function(x,y,z,a){
+  model <- lm(x~y)
+  graph <- plot (x,y, xlab = z, ylab = a, main = "Linear Model",
+        xlim= c(-1,3), ylim = c(-1,2.5))
+        abline(model, col = "red",lwd=2)
+  details <- summary(model)
+  
+  return(list(graph,details))
+}
+
+full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissism", "Beta")
+```
