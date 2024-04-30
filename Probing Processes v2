@@ -1,0 +1,228 @@
+---
+title: "Final Project"
+author: "Ryan Johnston"
+date: "2024-04-30"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Premise
+
+In this report, we conducted an analysis using data from a study assessing individuals' processes. Individuals (N=215) were sorted into 2 subgroups and assessed on their emotional processing pathways. Certain patterns of relation were found in the data that indicated the existence of paths between processes that were present in every single participant. 
+
+Individuals were also asked to provide self-report scores for 31 scales representing emotional states (e.g. enthusiastic, angry, sad) at certain intervals of time (at least 60 intervals for each person) in order to create a narcisissm index. Certain patterns of relation were found in the data that indicated the existence of paths between processes that were present in every single participant.
+
+Our primary intention in this report was to assess the strength of the group-level path estimates for each subgroup for three paths. The three group-level paths analyzed in this report were that of Negative Affect towards Nervousness, Hostility towards Negative Affect, and Positive Affect towards Energy. We want to assess whether there is a statistically significant difference between the subgroups in terms of their processing paths as well as assess whether there is any relationship between the processing path data and the aforementioned narcissism scale.
+
+# Set-Up
+
+This code sets the working directory and reads in data. The data includes emotional processing paths and a narcissism index.
+
+```{r}
+# Set working directory #
+setwd("Processes Files")
+
+# Read in data #
+pathEstimates = read.csv("indivPathEstimatesNoLag.csv", header = TRUE, 
+              na = c("0", "~"))
+
+narcissismIndex = readRDS("data_Wright2017.RDS")
+```
+
+# Simplifying Data
+
+This code is meant to simplify our data and provide more readable graphs.
+
+* Subgroup titles are created to name the subgroups, which include:
+    * Group 1
+    * Group 2
+* Titles are created for the group processing paths, which include:
+    * Hostile to Negative Affect
+    * Negative Affect to Nervous
+    * Positive Affect to Energy
+
+```{r}
+# Creating subgroup titles #
+pathEstimates <- as.data.frame(pathEstimates)
+pathEstimates$subgroup_titles <- matrix(NA,length(pathEstimates$file),1)
+
+pathEstimates$subgroup_titles[which(pathEstimates$sub_membership<= 1)] <- "Group 1"
+pathEstimates$subgroup_titles[which(pathEstimates$sub_membership>= 2)] <- "Group 2"
+
+# Creating titles for processes #
+pathEstimates$processes_titles <- matrix(NA,length(pathEstimates$file),1)
+
+pathEstimates$processes_titles[which(pathEstimates$lhs == "na")] <- "Hostile to Negative Affect"
+pathEstimates$processes_titles[which(pathEstimates$lhs == "nervous")] <- "Negative Affect to Nervous"
+pathEstimates$processes_titles[which(pathEstimates$lhs == "energy")] <- "Positive Affect to Energy"
+```
+
+# Bar Graph for Path Estimates in Subgroups
+
+* A bar graph is created to determine the population distribution of each subgroup according to pathway
+* Across each pathway, the subgroup distribution is the same
+
+```{r}
+library(ggplot2)
+
+ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
+  geom_bar(stat = "count", position = "dodge") +
+  labs(title = "Group Processes Comparisons", x = "Titles", y = "Count", fill= "Groups")+
+  scale_y_continuous(limits = c(0, 120))
+```
+
+# Construction of Narcissism Scale
+
+This code creates and organizes the narcissism scale that will be used for the remainder of data analysis, including:
+
+* Creating a new column to store the narcissism score
+* Summing the scores of the traits listed in the narcissism index
+* This score is then divided by 31, the number of traits, which creates an average narcissism score
+* These averages are then combined and aggregated by subject ID
+
+```{r}
+# Creating new column for average narcissism score #
+narcissismIndex$narcissismScale <- matrix(NA,length(narcissismIndex$subj_id),1)
+
+# Calculating narcissism score #
+narcissismIndex$narcissismScale <- (rowSums(narcissismIndex[, 9:39], na.rm = T)/31)
+
+####Combining Narcissism Scores by Subject ID ####
+
+narcissism_averages <- aggregate(narcissismScale ~ subj_id, data = narcissismIndex, FUN = mean)
+```
+
+# Finding Beta Averages for Each Subgroup
+
+* Each path is filtered out into their own subsets
+* The beta averages are aggregated for each subgroup according to path and printed
+
+```{r}
+## hostile to na beta averages
+na_beta_subset <- subset(pathEstimates, lhs == "na") #filter for only na paths
+na_beta_averages <- aggregate(beta ~ subgroup_titles, data = na_beta_subset, FUN = mean)
+print(na_beta_averages)
+
+## na to nervous beta averages
+nervous_beta_subset <- subset(pathEstimates, lhs == "nervous") #filter for only nervous paths
+nervous_beta_averages <- aggregate(beta ~ subgroup_titles, data = nervous_beta_subset, FUN = mean)
+print(nervous_beta_averages)
+
+## pa to energy beta averages
+energy_beta_subset <- subset(pathEstimates, lhs == "energy") #filter for only energy paths
+energy_beta_averages <- aggregate(beta ~ subgroup_titles, data = energy_beta_subset, FUN = mean)
+print(energy_beta_averages)
+
+```
+
+## Discussion
+
+The beta average was taken from each subgroup according to pathway and compared. The results included:
+
+* Group 2 had a higher beta average than Group 1 in the Hostile to Negative Affect pathway 
+* Group 2 had a higher beta average than Group 1 in the Negative Affect to Nervous pathway
+* Group 1 had a higher beta average than Group 2 in the Positive Affect to Energy pathway
+
+While these results contain differences, we cannot determine statistical significance solely from these values. Therefore, a t-test must be performed on each pathway to determine whether there is a statistically significant difference between the two subgroups.
+
+# T-Test Comparing Beta Averages in Subgroups for Each Path
+
+* A t-test is performed to examine whether there was any statistically significant difference between the subgroups based on their group path estimates
+
+```{r}
+### na beta t-test
+t.test(na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 1")],
+       na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+### nervous beta t-test
+t.test(nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 1")],
+       nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+### energy beta t-test
+t.test(energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 1")],
+       energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+```
+
+## Discussion
+
+A t-test was conducted for each pathway between Group 1 and Group 2 which found no statistically significant difference between the two for any of the pathways. The p-values calculated were all higher than the 0.05 threshold that is accepted for representing statistical significance, including:
+
+* 0.239 for Hostile to Negative Affect
+* 0.099 for Negative Affect to Nervous
+* 0.211 for Positive Affect to Energy
+
+Each of these values represent no statistically significant difference between either subgroup in terms of their pathway estimates. Therefore, we have failed to reject the null hypothesis and cannot conclude that there was a difference between the two subgroups in their processing pathways.
+
+# Merging Data
+
+* The "dplyr" package is imported for merging
+* "Person" is removed from number IDs to ensure that they are the same format
+* A column is created with the same name as the ID column from the narcissism averages
+* The data sets are merged by ID
+* Each pathway is filtered into a subset to ease future analysis
+
+```{r}
+#### Merging Data sets #####
+library(dplyr)
+
+pathEstimates$file <- as.numeric(sub("person", "", pathEstimates$file)) #removing "person" from number ids
+pathEstimates$subj_id <- pathEstimates$file #creating column with same name as narrissism_averages
+
+narc_path_merge <- merge(pathEstimates, narcissism_averages, by.y= "subj_id", all=TRUE)
+
+###filtering subsets for each of the three paths for future analysis
+narc_path_merge_na_path <- subset(narc_path_merge, lhs == "na")
+narc_path_merge_nervous_path <- subset(narc_path_merge, lhs == "nervous")
+narc_path_merge_energy_path <- subset(narc_path_merge, lhs == "energy")
+```
+
+# Constructing Linear Regression Model for Average Beta Scores and Narcissism Scale
+
+* A function is created to run a linear regression on the data and create the graph at the same time
+* The function is then ran on the narcissism scale and the beta values from the path estimates individually
+
+```{r}
+full_linear_regression <- function(x,y,z,a){
+  model <- lm(y~x)
+  graph <- plot (x,y, xlab = z, ylab = a, main = "Linear Model",
+        xlim= c(-1,3), ylim = c(-1,2.5))
+        abline(model, col = "red",lwd=2)
+  details <- summary(model)
+  
+  return(list(graph,details))
+}
+
+full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissism", "Beta")
+full_linear_regression(narc_path_merge_na_path$narcissismScale, narc_path_merge_na_path$beta, "Narcissism", "NA Path Beta")
+full_linear_regression(narc_path_merge_nervous_path$narcissismScale, narc_path_merge_nervous_path$beta, "Narcissism", "Nervous Path Beta")
+full_linear_regression(narc_path_merge_energy_path$narcissismScale, narc_path_merge_energy_path$beta, "Narcissism", "Energy Path Beta")
+```
+
+## Discussion
+
+For both the narcissism scale and the beta values from each pathway, a linear regression is run to determine whether there is a relationship between narcissism scores and pathway estimates.
+
+For each regression, the p-values were as follows:
+
+* 0.1278 for Narcissism
+* 0.5985 for Hostile to Negative Affect
+* 0.2039 for Negative Affect to Nervous
+* 0.4146 for Positive Affect to Energy
+
+According to these results, there was not a statistically significant relationship between any of the variables listed, due to the p-values for all regressions being above the 0.05 threshold for statistical significance. Therefore, we can conclude that group-level path estimates do not relate to the narcissism index.
+
+# Conclusion
+
+To conclude, our analysis of subgroup differences in emotional pathway estimates and our analysis of the effect of narcissism on these pathways returned no statistically significant effect in either analysis. Therefore, we cannot draw a causal relationship between any of the variables studied.
