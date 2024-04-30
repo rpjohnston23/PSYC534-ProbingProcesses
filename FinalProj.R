@@ -51,6 +51,39 @@ ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
 beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
 print(beta_averages)
 
+## hostile to na beta averages
+na_beta_subset <- subset(pathEstimates, lhs == "na")
+na_beta_averages <- aggregate(beta ~ subgroup_titles, data = na_beta_subset, FUN = mean)
+
+### na beta t-test
+t.test(na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 1")],
+       na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+## na to nervous beta averages
+nervous_beta_subset <- subset(pathEstimates, lhs == "nervous")
+nervous_beta_averages <- aggregate(beta ~ subgroup_titles, data = nervous_beta_subset, FUN = mean)
+
+### nervous beta t-test
+t.test(nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 1")],
+       nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+## pa to energy beta averages
+energy_beta_subset <- subset(pathEstimates, lhs == "energy")
+energy_beta_averages <- aggregate(beta ~ subgroup_titles, data = energy_beta_subset, FUN = mean)
+
+### energy beta t-test
+t.test(energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 1")],
+       energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
 #T-test to test for significant differences
 
 t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 1")], 
