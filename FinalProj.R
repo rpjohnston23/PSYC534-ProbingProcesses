@@ -46,10 +46,18 @@ ggplot(pathEstimates, aes(x = processes_titles, fill= subgroup_titles)) +
   labs(title = "Group Processes Comparisons", x = "Titles", y = "Count", fill= "Groups")+
   scale_y_continuous(limits = c(0, 120))
 
-####Beta Average For Group 1 and Group 2 #####
+####Beta Averages For Group 1 and Group 2 #####
 
 beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
 print(beta_averages)
+
+#T-test to test for significant differences
+
+t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 1")], 
+       pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 2")], 
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
 
 ## hostile to na beta averages
 na_beta_subset <- subset(pathEstimates, lhs == "na")
@@ -84,14 +92,6 @@ t.test(energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Grou
        mu = 0, paired = FALSE, var.equal = FALSE,
        conf.level = 0.95)
 
-#T-test to test for significant differences
-
-t.test(pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 1")], 
-       pathEstimates$beta[which(pathEstimates$subgroup_titles == "Group 2")], 
-       alternative = c("two.sided", "less", "greater"),
-       mu = 0, paired = FALSE, var.equal = FALSE,
-       conf.level = 0.95)
-
 #### Merging Data sets #####
 library(dplyr)
 
@@ -99,6 +99,11 @@ pathEstimates$file <- as.numeric(sub("person", "", pathEstimates$file)) #removin
 pathEstimates$subj_id <- pathEstimates$file #creating column with same name as narrissism_averages
 
 narc_path_merge <- merge(pathEstimates, narcissism_averages, by.y= "subj_id", all=TRUE)
+
+###filtering subsets for each of the three paths for future analysis
+narc_path_merge_na_path <- subset(narc_path_merge, lhs == "na")
+narc_path_merge_nervous_path <- subset(narc_path_merge, lhs == "nervous")
+narc_path_merge_energy_path <- subset(narc_path_merge, lhs == "energy")
 
 #### Linear Regression Summary and Graph####
 full_linear_regression <- function(x,y,z,a){
@@ -113,6 +118,7 @@ full_linear_regression <- function(x,y,z,a){
 
 full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissism", "Beta")
 
-
-
-
+#linear progression for each path's beta vs. narcissism score
+full_linear_regression(narc_path_merge_na_path$narcissismScale, narc_path_merge_na_path$beta, "Narcissism", "NA Path Beta")
+full_linear_regression(narc_path_merge_nervous_path$narcissismScale, narc_path_merge_nervous_path$beta, "Narcissism", "Nervous Path Beta")
+full_linear_regression(narc_path_merge_energy_path$narcissismScale, narc_path_merge_energy_path$beta, "Narcissism", "Energy Path Beta")
