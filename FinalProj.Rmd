@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Sourcing
 
-```{r, include=FALSE}
+```{r, include = FALSE}
 source("FinalProj.R")
 ```
 
@@ -24,6 +24,7 @@ For the study, participants were separated into two cohorts. Our primary intenti
 ## Bar Graph for Path Estimates in Subgroups
 
 In order to visualize and compare the reported instances of the relevant relationship displayed by each subgroup, we created a bar graph. Due to the consistency of the bar graph, we can identify that Group 1 has less participants than Group 2 and that every participant expressed an analyzable path for these three relationships.
+
 ```{r}
 library(ggplot2)
 
@@ -51,15 +52,49 @@ narcissism_averages <- aggregate(narcissismScale ~ subj_id, data = narcissismInd
 
 ## Finding Beta Averages for Each Subgroup
 
+For each examined path, we filtered them out into their own subsets and aggregated the data for the average beta values for each subgroup.
+
 ```{r}
-beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
-print(beta_averages)
+## hostile to na beta averages
+na_beta_subset <- subset(pathEstimates, lhs == "na") #filter for only na paths
+na_beta_averages <- aggregate(beta ~ subgroup_titles, data = na_beta_subset, FUN = mean)
+print(na_beta_averages)
+
+## na to nervous beta averages
+nervous_beta_subset <- subset(pathEstimates, lhs == "nervous") #filter for only nervous paths
+nervous_beta_averages <- aggregate(beta ~ subgroup_titles, data = nervous_beta_subset, FUN = mean)
+print(nervous_beta_averages)
+
+## pa to energy beta averages
+energy_beta_subset <- subset(pathEstimates, lhs == "energy") #filter for only energy paths
+energy_beta_averages <- aggregate(beta ~ subgroup_titles, data = energy_beta_subset, FUN = mean)
+print(energy_beta_averages)
+
 ```
 
 ## T-Test Comparing Beta Averages in Subgroups for Each Path
 
 ```{r}
-beta_averages <- aggregate(beta ~ subgroup_titles, data = pathEstimates, FUN = mean)
+### na beta t-test
+t.test(na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 1")],
+       na_beta_subset$beta[which(na_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+### nervous beta t-test
+t.test(nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 1")],
+       nervous_beta_subset$beta[which(nervous_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
+
+### energy beta t-test
+t.test(energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 1")],
+       energy_beta_subset$beta[which(energy_beta_subset$subgroup_titles == "Group 2")],
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)
 ```
 
 ## Constructing Linear Regression Model for Average Beta Scores and Narcissism Scale
@@ -78,4 +113,7 @@ full_linear_regression <- function(x,y,z,a){
 }
 
 full_linear_regression(narc_path_merge$narcissismScale, narc_path_merge$beta, "Narcissism", "Beta")
+full_linear_regression(narc_path_merge_na_path$narcissismScale, narc_path_merge_na_path$beta, "Narcissism", "NA Path Beta")
+full_linear_regression(narc_path_merge_nervous_path$narcissismScale, narc_path_merge_nervous_path$beta, "Narcissism", "Nervous Path Beta")
+full_linear_regression(narc_path_merge_energy_path$narcissismScale, narc_path_merge_energy_path$beta, "Narcissism", "Energy Path Beta")
 ```
